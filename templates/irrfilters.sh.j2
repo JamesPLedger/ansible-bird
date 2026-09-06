@@ -1,0 +1,46 @@
+#!/bin/bash
+
+######################################################
+# Author: James Ledger                               #
+# Script: Generate Prefix Filters for BIRD from IRR. #
+######################################################
+
+
+
+# Declaring variables for the script
+FILTER_DIR="/etc/bird/filters"
+ASSETS="$FILTER_DIR/ansiblerouters.json"
+
+
+# Check if list of AS-SETs is available from Ansible
+if [[ ! -f "$ASSETS" ]]; then
+    echo "Error: Ansible AS-SETs not found"
+    exit 1
+fi
+
+
+# Get a list of peers by extraxting the keys from our file generated from Ansible
+PEERS=$(jq -r 'keys[]' "$ASSETS")
+
+
+# Loop through each key/peer, assigning it to the variable $PEER
+for PEER in $PEERS; do
+
+    # Fetch the value from the key/peer (in this case, the AS-SET)
+    AS_SET=$(jq -r ".[\"$PEER\"]" "$ASSETS")
+
+    # If we are using the default AS number from the variable, it will not include AS at the start. We need to append it. 
+    if [[ ! "$AS_SET" == AS* ]];
+    then
+        AS_SET="AS${AS_SET}"
+    fi
+
+    # Then generate a filter for each peer and their AS-SET and put it in a file for BIRD to read
+    /bin/bgpq4 -b -6 -S RIPE -l "define ${PEER}_IRR" $AS_SET > "$FILTER_DIR/$PEER.conf"
+done
+
+# Update the filters
+/sbin/birdc reload all
+
+# Log that we have updated the filters
+logger "IRR Filters Updated"

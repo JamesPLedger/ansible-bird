@@ -1,0 +1,25 @@
+- name: bird_reconfig
+  tags: reconfig
+  ansible.builtin.command:
+    cmd: "/sbin/birdc configure"
+
+- name: bird_reload
+  tags: reload
+  ansible.builtin.command:
+    cmd: "/sbin/birdc reload all"
+
+- name: bird_service
+  service: 
+    name: bird
+    state: restarted
+    enabled: yes
+  notify: bird_reconfig
+
+- name: sshd_restart
+  service:
+    name: sshd
+    state: restarted
+    enabled: yes
+    
+- name: reboot
+  reboot:

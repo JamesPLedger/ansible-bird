@@ -1,0 +1,78 @@
+- name: Copy Files
+  tags: install
+  copy:
+    src: .
+    dest: /etc/bird/
+    owner: bird
+    group: bird
+
+- name: Configure variables.conf Template
+  tags: configure
+  template:
+    src: "variables.conf"
+    dest: /etc/bird/variables.conf
+    owner: bird
+    group: bird
+  notify: bird_reconfig
+
+- name: Configure rpki.conf Template
+  tags: configure
+  template:
+    src: "rpki.conf"
+    dest: /etc/bird/rpki.conf
+    owner: bird
+    group: bird
+  notify: bird_reconfig
+
+- name: Configure filters.conf Template
+  tags: configure
+  template:
+    src: "filters.conf"
+    dest: /etc/bird/filters.conf
+    owner: bird
+    group: bird
+  notify: bird_reconfig
+
+- name: Configure templates.conf Template
+  tags: configure
+  template:
+    src: "templates.conf"
+    dest: /etc/bird/templates.conf
+    owner: bird
+    group: bird
+  notify: bird_reconfig
+
+- name: Configure protocols.conf Template
+  tags: configure
+  template:
+    src: "protocols.conf"
+    dest: /etc/bird/protocols.conf
+    owner: bird
+    group: bird
+  notify: bird_reconfig
+
+- name: Configure communities.conf Template
+  tags: configure
+  template:
+    src: "communities.conf"
+    dest: /etc/bird/communities.conf
+    owner: bird
+    group: bird
+  notify: bird_reconfig
+
+- name: Configure bird.conf Template
+  tags: configure
+  template:
+    src: "bird.conf"
+    dest: /etc/bird/bird.conf
+    owner: bird
+    group: bird
+  notify: bird_reconfig
+
+- name: Set Bird Permissions
+  tags: install
+  file:
+    path: /etc/bird
+    owner: bird
+    group: bird
+    recurse: yes

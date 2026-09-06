@@ -1,0 +1,41 @@
+---
+- name: Create filters folder
+  file:
+    path: /etc/bird/filters
+    state: directory
+    mode: '0775'
+    owner: bird
+    group: bird
+
+- name: Place IRR script into bird folders
+  template:
+    src: irrfilters.sh.j2
+    dest: /etc/bird/filters/irrfilters.sh
+    mode: '0775'
+    owner: bird
+    group: bird
+  register: irr_installed
+
+- name: Generate IRR data based on peers input
+  template:
+    src: ansiblerouters.json.j2
+    dest: /etc/bird/filters/ansiblerouters.json
+    mode: '0775'
+    owner: bird
+    group: bird
+  register: cron_installed
+
+- name: Create cron job for the IRR script
+  cron:
+    name: "Generate IRR data hourly"
+    minute: "0"
+    hour: "*"
+    user: bird
+    job: "/etc/bird/filters/irrfilters.sh"
+
+- name: Generate initial IRR filters
+  shell: /etc/bird/filters/irrfilters.sh
+  notify: bird_reload
+  when: 
+    - cron_installed.changed
+    - irr_installed.changed

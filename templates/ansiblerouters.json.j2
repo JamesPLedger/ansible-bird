@@ -1,0 +1,5 @@
+{
+{%- for TRANSIT in BGP_SESSIONS %}
+"{{ TRANSIT }}": "{{ BGP_SESSIONS[TRANSIT].AS_SET | default( BGP_SESSIONS[TRANSIT].TRANSIT_ASN ) }}"{% if not loop.last %}, {% endif %}
+{%- endfor %}
+} 
